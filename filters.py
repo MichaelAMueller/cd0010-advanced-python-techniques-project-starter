@@ -54,6 +54,8 @@ class AttributeFilter:
 
     def __call__(self, approach):
         """Invoke `self(approach)`."""
+        if self.value == None:
+            return True
         return self.op(self.get(approach), self.value)
 
     @classmethod
@@ -70,6 +72,96 @@ class AttributeFilter:
 
     def __repr__(self):
         return f"{self.__class__.__name__}(op=operator.{self.op.__name__}, value={self.value})"
+
+class Date_Filter(AttributeFilter):
+    def __init__(self, value, op=operator.eq):
+        super().__init__(op, value)
+    
+    #why classmethod?
+    @classmethod
+    def get(cls, approach):
+        return approach.time.date()
+
+class Start_Date_Filter(AttributeFilter):
+    def __init__(self, value, op=operator.ge):
+        super().__init__(op, value)
+    
+    #why classmethod?
+    @classmethod
+    def get(cls, approach):
+        return approach.time.date()
+
+class End_Date_Filter(AttributeFilter):
+    def __init__(self, value, op=operator.le):
+        super().__init__(op, value)
+    
+    #why classmethod?
+    @classmethod
+    def get(cls, approach):
+        return approach.time.date()
+
+class dist_min_Filter(AttributeFilter):
+    def __init__(self, value, op=operator.ge):
+        super().__init__(op, value)
+    
+    #why classmethod?
+    @classmethod
+    def get(cls, approach):
+        return approach.distance
+
+class dist_max_Filter(AttributeFilter):
+    def __init__(self, value, op=operator.le):
+        super().__init__(op, value)
+    
+    #why classmethod?
+    @classmethod
+    def get(cls, approach):
+        return approach.distance
+
+class vel_min_Filter(AttributeFilter):
+    def __init__(self, value, op=operator.ge):
+        super().__init__(op, value)
+    
+    #why classmethod?
+    @classmethod
+    def get(cls, approach):
+        return approach.velocity
+
+class vel_max_Filter(AttributeFilter):
+    def __init__(self, value, op=operator.le):
+        super().__init__(op, value)
+    
+    #why classmethod?
+    @classmethod
+    def get(cls, approach):
+        return approach.velocity
+
+class diam_min_Filter(AttributeFilter):
+    def __init__(self, value, op=operator.ge):
+        super().__init__(op, value)
+    
+    #why classmethod?
+    @classmethod
+    def get(cls, approach):
+        return approach.neo.diameter
+
+class diam_max_Filter(AttributeFilter):
+    def __init__(self, value, op=operator.le):
+        super().__init__(op, value)
+    
+    #why classmethod?
+    @classmethod
+    def get(cls, approach):
+        return approach.neo.diameter
+
+class haz_Filter(AttributeFilter):
+    def __init__(self, value, op=operator.eq):
+        super().__init__(op, value)
+    
+    #why classmethod?
+    @classmethod
+    def get(cls, approach):
+        return approach.neo.hazardous
 
 
 def create_filters(
@@ -109,7 +201,16 @@ def create_filters(
     :return: A collection of filters for use with `query`.
     """
     # TODO: Decide how you will represent your filters.
-    return ()
+    # filters = {'date':None, 'start_date':None, 'end_date':None,
+    #     'dist_min':None, 'dist_max':None,
+    #     'vel_min':None, 'vel_max':None,
+    #     'diam_min':None, 'diam_max':None,
+    #     'haz':None}
+    # if date:
+    #     filters['date'] = date #Date_Filter(operator.eq, date)
+    # if type(hazardous) == bool:
+    #     filters['haz'] = hazardous
+    return [Date_Filter(date), Start_Date_Filter(start_date), End_Date_Filter(end_date), dist_min_Filter(distance_min), dist_max_Filter(distance_max), vel_min_Filter(velocity_min), vel_max_Filter(velocity_max), diam_min_Filter(diameter_min), diam_max_Filter(diameter_max), haz_Filter(hazardous)]
 
 
 def limit(iterator, n=None):
@@ -122,4 +223,12 @@ def limit(iterator, n=None):
     :yield: The first (at most) `n` values from the iterator.
     """
     # TODO: Produce at most `n` values from the given iterator.
-    return iterator
+    count = 0
+    for item in iterator:
+        if not n or count < n:
+            yield item
+            count += 1
+        else:
+            break
+
+#2003 YS70

@@ -15,8 +15,9 @@ You'll edit this file in Task 2.
 import csv
 import json
 
-from models import NearEarthObject, CloseApproach
+from .models import NearEarthObject, CloseApproach
 
+#extracting seems very slow
 
 def load_neos(neo_csv_path):
     """Read near-Earth object information from a CSV file.
@@ -24,8 +25,19 @@ def load_neos(neo_csv_path):
     :param neo_csv_path: A path to a CSV file containing data about near-Earth objects.
     :return: A collection of `NearEarthObject`s.
     """
-    # TODO: Load NEO data from the given CSV file.
-    return ()
+
+    # load neos into set
+    with open(neo_csv_path) as infile:
+            reader = csv.DictReader(infile)
+            NEO_set = set(NearEarthObject(**neo) for neo in reader)
+    return NEO_set
+    # load neos into a dict sorted according to primary designation
+    # NEO_dict_des = {}
+    # with open(neo_csv_path) as infile:
+    #     reader = csv.DictReader(infile)
+    #     for neo in reader:
+    #         NEO_dict_des[neo['pdes']] = NearEarthObject(**neo)
+    # return NEO_dict_des
 
 
 def load_approaches(cad_json_path):
@@ -34,5 +46,24 @@ def load_approaches(cad_json_path):
     :param cad_json_path: A path to a JSON file containing data about close approaches.
     :return: A collection of `CloseApproach`es.
     """
-    # TODO: Load close approach data from the given JSON file.
-    return ()
+
+    # load close approaches in set or better in list according to date?? using a constructor here would prob be better
+    with open(cad_json_path) as infile:
+        reader = json.load(infile)
+        CAD_list = [CloseApproach(**{'des':approach[0], 'cd':approach[3], 'dist':approach[4], 'v_rel':approach[7]}) for approach in reader['data']]
+    return CAD_list
+    # load close approaches into a dict sorted according to primary designations of the respective neos
+    # CAD_dict_des = {}
+    # with open(cad_json_path) as infile:
+    #     reader = json.load(infile)
+    #     for approach in reader['data']:
+    #         info = {'des':approach[0], 'cd':approach[3], 'dist':approach[4], 'v_rel':approach[7]}
+    #         close_approach = CloseApproach(**info)
+    #         if close_approach._designation not in CAD_dict_des:
+    #             CAD_dict_des[close_approach._designation] = []
+    #         CAD_dict_des[close_approach._designation].append(close_approach)
+    # return CAD_dict_des
+
+            # if str(close_approach.time.date()) not in CAD_dict_date:
+            #     CAD_dict_date[str(close_approach.time.date())] = []
+            # CAD_dict_date[str(close_approach.time.date())].append(close_approach)
